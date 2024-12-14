@@ -1,6 +1,5 @@
 #include "philosophers.h"
 
-
 void	print_message(t_philo *philo, char *msg)
 {
 	pthread_mutex_lock(&(philo->sim->write));
@@ -8,14 +7,12 @@ void	print_message(t_philo *philo, char *msg)
 	pthread_mutex_unlock(&(philo->sim->write));
 }
 
-
 void	set_someone_is_dead(t_simulation *sim)
 {
 	pthread_mutex_lock(&(sim->dead));
 	sim->someone_is_dead = 1;
 	pthread_mutex_unlock(&(sim->dead));
 }
-
 
 bool	has_died(t_philo *philo)
 {
@@ -28,13 +25,13 @@ bool	has_died(t_philo *philo)
 	die_time = philo->sim->input_data->die_time;
 	if (curtime - last_meal_time > die_time)
 	{
+		// printf("start_time: %ld\ncurtime: %ld\nlast_meal_time: %ld\ndie_time: %ld\n", philo->start_time, curtime, last_meal_time, die_time);
 		print_message(philo, "died");
 		set_someone_is_dead(philo->sim);
 		return (1);
 	}
 	return (0);
 }
-
 
 bool	take_fork(t_philo *philo, int fork_idx)
 {
@@ -55,11 +52,10 @@ bool	take_fork(t_philo *philo, int fork_idx)
 			pthread_mutex_lock(fork);
 			sim->is_fork_occupied[fork_idx] = 1;
 			print_message(philo, "has taken a fork");
+			return (1);
 		}
 	}
-	return (1);
 }
-
 
 void	return_fork(t_philo *philo, int fork_idx)
 {
@@ -69,7 +65,6 @@ void	return_fork(t_philo *philo, int fork_idx)
 	sim->is_fork_occupied[fork_idx] = 0;
 	pthread_mutex_unlock(&(sim->forks[fork_idx]));
 }
-
 
 void	go_eat(t_philo *philo)
 {
@@ -87,17 +82,17 @@ void	go_eat(t_philo *philo)
 		print_message(philo, "is eating");
 		if (philo->num_finished_meals != -1)
 			philo->num_finished_meals++;
-		ft_usleep(philo->sim->input_data->eat_time, philo->sim->someone_is_dead);
-		philo->last_meal_time = get_time() - philo->start_time;
+		ft_usleep(philo->sim->input_data->eat_time);
+		philo->last_meal_time = get_time();
 	}
-	return_fork(philo, philo->first_fork_idx);
 	return_fork(philo, philo->second_fork_idx);
+	return_fork(philo, philo->first_fork_idx);
 }
 
 void	go_sleep(t_philo *philo)
 {
 	print_message(philo, "is sleeping");
-	ft_usleep(philo->sim->input_data->sleep_time, philo->sim->someone_is_dead);
+	ft_usleep(philo->sim->input_data->sleep_time);
 }
 
 void	go_think(t_philo *philo)
@@ -113,7 +108,7 @@ void	*routine(void *arg)
 	philo = (t_philo *)arg;
 	sim = philo->sim;
 	if (philo->id % 2 == 0)
-		ft_usleep(1, sim->someone_is_dead);
+		ft_usleep(1);
 	while (1)
 	{
 		go_eat(philo);
@@ -150,9 +145,10 @@ void	clean_up_data(t_philo *arr_philos, t_simulation *sim)
 	int	i;
 
 	i = -1;
+	pthread_mutex_destroy(&sim->write);
+	pthread_mutex_destroy(&sim->dead);
 	while (++i < sim->input_data->num_philos)
 		pthread_mutex_destroy(&sim->forks[i]);
-	pthread_mutex_destroy(&sim->write);
 	if (sim->forks)
 		free(sim->forks);
 	if (arr_philos)

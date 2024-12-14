@@ -48,7 +48,7 @@ int		process_input(t_input *data, int argc, char **argv);
 
 /* time_utils.c */
 size_t	get_time(void);
-void	ft_usleep(size_t ms, bool someone_is_dead);
+void	ft_usleep(size_t ms);
 void	print_message(t_philo *philo, char *str);
 
 /* run_simulation.c */

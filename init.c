@@ -21,6 +21,7 @@ int	init_simulation(t_simulation *sim, t_input *input)
 	}
 	i = -1;
 	pthread_mutex_init(&sim->write, NULL);
+	pthread_mutex_init(&sim->dead, NULL);
 	while (++i < input->num_philos)
 	{
 		sim->is_fork_occupied[i] = 0;
