@@ -7,11 +7,34 @@ void	print_message(t_philo *philo, char *msg)
 	pthread_mutex_unlock(&(philo->sim->write));
 }
 
-void	set_someone_is_dead(t_simulation *sim)
+// bool	are_philos_done_with_meals(t_simulation *sim)
+// {
+// 	int		num_philos;
+// 	int		processed_philos;
+// 	bool	res;
+
+// 	// pthread_mutex_lock(&sim->meals);
+// 	num_philos = sim->input_data->num_philos;
+// 	processed_philos = sim->processed_philos;
+// 	if (processed_philos == num_philos)
+// 		res = true;
+// 	else
+// 		res = false;
+// 	// pthread_mutex_unlock(&sim->meals);
+// 	return (res);
+// }
+
+bool	check_if_someone_is_dead(t_simulation *sim)
 {
+	bool	res;
+
 	pthread_mutex_lock(&(sim->dead));
-	sim->someone_is_dead = 1;
+	if (sim->is_someone_dead)
+		res = true;
+	else
+		res = false;
 	pthread_mutex_unlock(&(sim->dead));
+	return (res);
 }
 
 bool	has_died(t_philo *philo)
@@ -23,14 +46,20 @@ bool	has_died(t_philo *philo)
 	curtime = get_time();
 	last_meal_time = philo->last_meal_time;
 	die_time = philo->sim->input_data->die_time;
-	if (curtime - last_meal_time > die_time)
+
+	if (curtime - last_meal_time >= die_time)
 	{
 		// printf("start_time: %ld\ncurtime: %ld\nlast_meal_time: %ld\ndie_time: %ld\n", philo->start_time, curtime, last_meal_time, die_time);
-		print_message(philo, "died");
-		set_someone_is_dead(philo->sim);
-		return (1);
+		pthread_mutex_lock(&(philo->sim->dead));
+		if (!philo->sim->is_someone_dead)
+		{
+			print_message(philo, "died");
+			philo->sim->is_someone_dead = 1;
+		}
+		pthread_mutex_unlock(&(philo->sim->dead));
+		return (true);
 	}
-	return (0);
+	return (false);
 }
 
 bool	take_fork(t_philo *philo, int fork_idx)
@@ -45,14 +74,14 @@ bool	take_fork(t_philo *philo, int fork_idx)
 		if (sim->is_fork_occupied[fork_idx])
 		{
 			if (has_died(philo))
-				return (0);
+				return (false);
 		}
 		else
 		{
 			pthread_mutex_lock(fork);
 			sim->is_fork_occupied[fork_idx] = 1;
 			print_message(philo, "has taken a fork");
-			return (1);
+			return (true);
 		}
 	}
 }
@@ -77,12 +106,12 @@ void	go_eat(t_philo *philo)
 		return_fork(philo, philo->first_fork_idx);
 		return ;
 	}
-	if (!philo->sim->someone_is_dead)
+	if (!check_if_someone_is_dead(philo->sim))
 	{
 		print_message(philo, "is eating");
 		if (philo->num_finished_meals != -1)
 			philo->num_finished_meals++;
-		ft_usleep(philo->sim->input_data->eat_time);
+		ft_usleep(philo->sim->input_data->eat_time, philo);
 		philo->last_meal_time = get_time();
 	}
 	return_fork(philo, philo->second_fork_idx);
@@ -92,12 +121,14 @@ void	go_eat(t_philo *philo)
 void	go_sleep(t_philo *philo)
 {
 	print_message(philo, "is sleeping");
-	ft_usleep(philo->sim->input_data->sleep_time);
+	ft_usleep(philo->sim->input_data->sleep_time, philo);
 }
 
 void	go_think(t_philo *philo)
 {
 	print_message(philo, "is thinking");
+	if (philo->sim->input_data->num_philos % 2 != 0)
+		ft_usleep(1, philo);
 }
 
 void	*routine(void *arg)
@@ -108,14 +139,14 @@ void	*routine(void *arg)
 	philo = (t_philo *)arg;
 	sim = philo->sim;
 	if (philo->id % 2 == 0)
-		ft_usleep(1);
+		ft_usleep(1, philo);
 	while (1)
 	{
 		go_eat(philo);
-		if (sim->someone_is_dead)
+		if (check_if_someone_is_dead(sim))
 			break ;
 		go_sleep(philo);
-		if (sim->someone_is_dead)
+		if (check_if_someone_is_dead(sim))
 			break ;
 		go_think(philo);
 	}

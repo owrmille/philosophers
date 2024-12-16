@@ -19,12 +19,14 @@ typedef struct s_input
 
 typedef struct s_simulation
 {
-	bool			someone_is_dead;
+	bool			is_someone_dead;
+	// int				processed_philos;
 	t_input			*input_data;
 	pthread_mutex_t	*forks;
 	bool			*is_fork_occupied;
 	pthread_mutex_t	write;
 	pthread_mutex_t	dead;
+	// pthread_mutex_t	meals;
 }	t_simulation;
 
 typedef struct s_philo
@@ -40,18 +42,20 @@ typedef struct s_philo
 }	t_philo;
 
 /* init.c */
-int			init_simulation(t_simulation *sim, t_input *input);
-t_philo*	init_philos(t_simulation *sim);
+int		init_simulation(t_simulation *sim, t_input *input);
+t_philo	*init_philos(t_simulation *sim);
 
 int		ft_atoi(const char	*str);
 int		process_input(t_input *data, int argc, char **argv);
 
 /* time_utils.c */
 size_t	get_time(void);
-void	ft_usleep(size_t ms);
+int		ft_usleep(size_t ms, t_philo *philo);
 void	print_message(t_philo *philo, char *str);
 
 /* run_simulation.c */
+
+bool	has_died(t_philo *philo);
 void	print_message(t_philo *philo, char *msg);
 void	take_left_fork(t_philo *philo);
 void	take_right_fork(t_philo *philo);
@@ -61,7 +65,6 @@ void	go_think(t_philo *philo);
 void	*routine(void *arg);
 void	create_threads(t_philo *arr_philos, int num_philos);
 void	wait_threads(t_philo *arr_philos, int num_philos);
-// void	*monitor(void *arg);
 void	clean_up_data(t_philo *arr_philos, t_simulation *sim);
 int		run_simulation(t_simulation *sim, t_input *input_data);
 

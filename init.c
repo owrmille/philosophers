@@ -4,7 +4,8 @@ int	init_simulation(t_simulation *sim, t_input *input)
 {
 	int	i;
 
-	sim->someone_is_dead = 0;
+	sim->is_someone_dead = 0;
+	// sim->processed_philos = 0;
 	sim->input_data = input;
 	sim->forks = malloc(sizeof(pthread_mutex_t) * input->num_philos);
 	if (!sim->forks)
