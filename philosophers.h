@@ -22,8 +22,8 @@ typedef struct s_simulation
 	bool			is_someone_dead;
 	int				processed_philos;
 	t_input			*input_data;
-	pthread_mutex_t	*forks;
 	bool			*is_fork_occupied;
+	pthread_mutex_t	forks;
 	pthread_mutex_t	write;
 	pthread_mutex_t	dead;
 	pthread_mutex_t	meals;

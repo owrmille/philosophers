@@ -30,10 +30,7 @@ bool	check_if_someone_is_dead(t_simulation *sim)
 	bool	res;
 
 	pthread_mutex_lock(&(sim->dead));
-	if (sim->is_someone_dead)
-		res = true;
-	else
-		res = false;
+	res = sim->is_someone_dead;
 	pthread_mutex_unlock(&(sim->dead));
 	return (res);
 }
@@ -48,7 +45,7 @@ bool	has_died(t_philo *philo)
 	last_meal_time = philo->last_meal_time;
 	die_time = philo->sim->input_data->die_time;
 
-	if (curtime - last_meal_time >= die_time)
+	if (curtime - last_meal_time > die_time)
 	{
 		// printf("start_time: %ld\ncurtime: %ld\nlast_meal_time: %ld\ndie_time: %ld\n", philo->start_time, curtime, last_meal_time, die_time);
 		pthread_mutex_lock(&(philo->sim->dead));
@@ -63,55 +60,58 @@ bool	has_died(t_philo *philo)
 	return (false);
 }
 
-bool	take_fork(t_philo *philo, int fork_idx)
+void	take_forks(t_philo *philo)
 {
-	pthread_mutex_t	*fork;
+	pthread_mutex_t *fork_lock;
 	t_simulation	*sim;
-
+	bool first_fork;
+	bool second_fork;
+	
+	fork_lock = &(philo->sim->forks);
 	sim = philo->sim;
-	fork = &(sim->forks[fork_idx]);
 	while (1)
 	{
-		if (sim->is_fork_occupied[fork_idx])
+		pthread_mutex_lock(fork_lock);
+		first_fork = sim->is_fork_occupied[philo->first_fork_idx];
+		second_fork = sim->is_fork_occupied[philo->second_fork_idx];
+		if (!first_fork && !second_fork)
 		{
-			if (has_died(philo))
-				return (false);
+			sim->is_fork_occupied[philo->first_fork_idx] = true;
+			print_message(philo, "has taken a fork");
+			sim->is_fork_occupied[philo->second_fork_idx] = true;
+			print_message(philo, "has taken a fork");
+			pthread_mutex_unlock(fork_lock);
+			return ;
 		}
 		else
 		{
-			pthread_mutex_lock(fork);
-			sim->is_fork_occupied[fork_idx] = 1;
-			print_message(philo, "has taken a fork");
-			return (true);
+			pthread_mutex_unlock(fork_lock);
+			if (has_died(philo))
+				return ;
 		}
 	}
 }
 
-void	return_fork(t_philo *philo, int fork_idx)
+void	return_forks(t_philo *philo)
 {
+	pthread_mutex_t *fork_lock;
 	t_simulation	*sim;
-
+	fork_lock = &(philo->sim->forks);
+	pthread_mutex_lock(fork_lock);
 	sim = philo->sim;
-	sim->is_fork_occupied[fork_idx] = 0;
-	pthread_mutex_unlock(&(sim->forks[fork_idx]));
+	sim->is_fork_occupied[philo->first_fork_idx] = false;
+	sim->is_fork_occupied[philo->second_fork_idx] = false;
+	pthread_mutex_unlock(fork_lock);
 }
 
 void	go_eat(t_philo *philo)
 {
-	if (!take_fork(philo, philo->first_fork_idx))
-	{
-		return ;
-	}
-	if (!take_fork(philo, philo->second_fork_idx))
-	{
-		return_fork(philo, philo->first_fork_idx);
-		return ;
-	}
+	take_forks(philo);
 	if (!check_if_someone_is_dead(philo->sim))
 	{
 		print_message(philo, "is eating");
-		ft_usleep(philo->sim->input_data->eat_time, philo);
 		philo->last_meal_time = get_time();
+		ft_usleep(philo->sim->input_data->eat_time, philo);
 		if (philo->num_finished_meals != -1)
 			philo->num_finished_meals++;
 
@@ -123,8 +123,7 @@ void	go_eat(t_philo *philo)
 		pthread_mutex_unlock(&philo->sim->meals);
 		// NEW
 	}
-	return_fork(philo, philo->second_fork_idx);
-	return_fork(philo, philo->first_fork_idx);
+	return_forks(philo);
 }
 
 void	go_sleep(t_philo *philo)
@@ -147,8 +146,17 @@ void	*routine(void *arg)
 
 	philo = (t_philo *)arg;
 	sim = philo->sim;
+	if (sim->input_data->num_philos == 1)
+	{
+		print_message(philo, "has taken a fork");
+		ft_usleep(sim->input_data->die_time, philo);
+		print_message(philo, "died");
+		return (NULL);
+	}
+
 	if (philo->id % 2 == 0)
-		ft_usleep(1, philo);
+		ft_usleep(sim->input_data->eat_time / 2, philo);
+
 	while (1)
 	{
 		go_eat(philo);
@@ -184,18 +192,14 @@ void	wait_threads(t_philo *arr_philos, int num_philos)
 
 void	clean_up_data(t_philo *arr_philos, t_simulation *sim)
 {
-	int	i;
-
-	i = -1;
+	pthread_mutex_destroy(&sim->forks);
 	pthread_mutex_destroy(&sim->write);
 	pthread_mutex_destroy(&sim->dead);
 	pthread_mutex_destroy(&sim->meals);
-	while (++i < sim->input_data->num_philos)
-		pthread_mutex_destroy(&sim->forks[i]);
-	if (sim->forks)
-		free(sim->forks);
 	if (arr_philos)
 		free(arr_philos);
+	if (sim->is_fork_occupied)
+		free(sim->is_fork_occupied);
 }
 
 int	run_simulation(t_simulation *sim, t_input *input_data)
