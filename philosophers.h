@@ -17,27 +17,34 @@ typedef struct s_input
 	int	sleep_time;
 }	t_input;
 
+struct s_philo;
+
 typedef struct s_simulation
 {
-	bool			is_someone_dead;
+	size_t			start_time;
 	int				processed_philos;
+	struct s_philo	*philos;
 	t_input			*input_data;
 	pthread_mutex_t	*forks;
-	pthread_mutex_t	write;
-	pthread_mutex_t	dead;
-	pthread_mutex_t	meals;
+	pthread_mutex_t	write_lock;
+	pthread_mutex_t	processed_philos_lock;
 }	t_simulation;
 
 typedef struct s_philo
 {
-	size_t			start_time;
 	int				id;
-	int				num_finished_meals;
-	size_t			last_meal_time;
 	t_simulation	*sim;
 	pthread_t		thread;
 	int				first_fork_idx;
 	int				second_fork_idx;
+	int				num_finished_meals;
+	bool			has_eaten;
+	bool			dead;
+	size_t			last_meal_time;
+	pthread_mutex_t	last_meal_time_lock;
+	pthread_mutex_t has_eaten_lock;
+	pthread_mutex_t dead_lock;
+	pthread_mutex_t meal_lock;
 }	t_philo;
 
 /* init.c */
@@ -62,8 +69,8 @@ void	go_eat(t_philo *philo);
 void	go_sleep(t_philo *philo);
 void	go_think(t_philo *philo);
 void	*routine(void *arg);
-void	create_threads(t_philo *arr_philos, int num_philos);
-void	wait_threads(t_philo *arr_philos, int num_philos);
+void	create_philosophers_threads(t_philo *arr_philos, int num_philos);
+void	wait_threads(t_simulation *sim, pthread_t *dead_monitor_thread, pthread_t *meals_monitor_thread);
 void	clean_up_data(t_philo *arr_philos, t_simulation *sim);
 int		run_simulation(t_simulation *sim, t_input *input_data);
 
