@@ -14,7 +14,6 @@ int	init_simulation(t_simulation *sim, t_input *input)
 	}
 	i = -1;
 	pthread_mutex_init(&sim->write_lock, NULL);
-	pthread_mutex_init(&sim->processed_philos_lock, NULL);
 	while (++i < input->num_philos)
 	{
 		pthread_mutex_init(&sim->forks[i], NULL);
@@ -22,7 +21,7 @@ int	init_simulation(t_simulation *sim, t_input *input)
 	return (0);
 }
 
-t_philo	*init_philos(t_simulation *sim)
+int	init_philos(t_simulation *sim)
 {
 	t_philo	*arr_philos;
 	int		i;
@@ -31,7 +30,7 @@ t_philo	*init_philos(t_simulation *sim)
 	if (!arr_philos)
 	{
 		write(2, "Error: malloc failed.\n", 23);
-		return (NULL);
+		return (1);
 	}
 	i = -1;
 	while (++i < sim->input_data->num_philos)
@@ -58,5 +57,5 @@ t_philo	*init_philos(t_simulation *sim)
 		}
 	}
 	sim->philos = arr_philos;
-	return (arr_philos);
+	return (0);
 }
