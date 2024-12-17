@@ -41,6 +41,7 @@ typedef struct s_philo
 	bool			dead;
 	size_t			last_meal_time;
 	pthread_mutex_t	last_meal_time_lock;
+	pthread_mutex_t num_finished_meals_lock;
 	pthread_mutex_t has_eaten_lock;  // TODO delete
 	pthread_mutex_t dead_lock;
 	pthread_mutex_t meal_lock;
@@ -60,6 +61,7 @@ void	print_message(t_philo *philo, char *str);
 
 /* run_simulation.c */
 
+bool	is_dead(t_philo *philo);
 bool	has_died(t_philo *philo);
 void	print_message(t_philo *philo, char *msg);
 void	take_left_fork(t_philo *philo);

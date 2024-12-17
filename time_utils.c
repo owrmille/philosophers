@@ -20,9 +20,7 @@ void	ft_usleep(size_t ms, t_philo *philo)
 	while ((get_time() - start) < ms)
 	{
 		usleep(500);
-		// if (has_died(philo) || philo->sim->is_someone_dead)
-		// 	return (1);
+		if (is_dead(philo))
+			return ;
 	}
-	(void)philo;
-	// return (0);
 }
