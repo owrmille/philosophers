@@ -23,7 +23,6 @@ typedef struct s_simulation
 	int				processed_philos;
 	t_input			*input_data;
 	pthread_mutex_t	*forks;
-	bool			*is_fork_occupied;
 	pthread_mutex_t	write;
 	pthread_mutex_t	dead;
 	pthread_mutex_t	meals;
@@ -50,7 +49,7 @@ int		process_input(t_input *data, int argc, char **argv);
 
 /* time_utils.c */
 size_t	get_time(void);
-int		ft_usleep(size_t ms, t_philo *philo);
+void		ft_usleep(size_t ms, t_philo *philo);
 void	print_message(t_philo *philo, char *str);
 
 /* run_simulation.c */

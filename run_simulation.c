@@ -48,7 +48,7 @@ bool	has_died(t_philo *philo)
 	last_meal_time = philo->last_meal_time;
 	die_time = philo->sim->input_data->die_time;
 
-	if (curtime - last_meal_time >= die_time)
+	if (curtime - last_meal_time > die_time)
 	{
 		// printf("start_time: %ld\ncurtime: %ld\nlast_meal_time: %ld\ndie_time: %ld\n", philo->start_time, curtime, last_meal_time, die_time);
 		pthread_mutex_lock(&(philo->sim->dead));
@@ -70,21 +70,11 @@ bool	take_fork(t_philo *philo, int fork_idx)
 
 	sim = philo->sim;
 	fork = &(sim->forks[fork_idx]);
-	while (1)
-	{
-		if (sim->is_fork_occupied[fork_idx])
-		{
-			if (has_died(philo))
-				return (false);
-		}
-		else
-		{
-			pthread_mutex_lock(fork);
-			sim->is_fork_occupied[fork_idx] = 1;
-			print_message(philo, "has taken a fork");
-			return (true);
-		}
-	}
+	if (has_died(philo))
+		return (false);
+	pthread_mutex_lock(fork);
+	print_message(philo, "has taken a fork");
+	return (true);
 }
 
 void	return_fork(t_philo *philo, int fork_idx)
@@ -92,7 +82,6 @@ void	return_fork(t_philo *philo, int fork_idx)
 	t_simulation	*sim;
 
 	sim = philo->sim;
-	sim->is_fork_occupied[fork_idx] = 0;
 	pthread_mutex_unlock(&(sim->forks[fork_idx]));
 }
 
@@ -115,13 +104,11 @@ void	go_eat(t_philo *philo)
 		if (philo->num_finished_meals != -1)
 			philo->num_finished_meals++;
 
-		// NEW
 		pthread_mutex_lock(&philo->sim->meals);
 		if (philo->num_finished_meals != -1
 			&& philo->num_finished_meals == philo->sim->input_data->num_meals)
 			philo->sim->processed_philos++;
 		pthread_mutex_unlock(&philo->sim->meals);
-		// NEW
 	}
 	return_fork(philo, philo->second_fork_idx);
 	return_fork(philo, philo->first_fork_idx);
@@ -136,8 +123,8 @@ void	go_sleep(t_philo *philo)
 void	go_think(t_philo *philo)
 {
 	print_message(philo, "is thinking");
-	if (philo->sim->input_data->num_philos % 2 != 0)
-		ft_usleep(1, philo);
+	// if (philo->sim->input_data->num_philos % 2 != 0)
+	// 	ft_usleep(1, philo);
 }
 
 void	*routine(void *arg)
@@ -148,7 +135,7 @@ void	*routine(void *arg)
 	philo = (t_philo *)arg;
 	sim = philo->sim;
 	if (philo->id % 2 == 0)
-		ft_usleep(1, philo);
+		ft_usleep(philo->sim->input_data->eat_time / 2, philo);
 	while (1)
 	{
 		go_eat(philo);
