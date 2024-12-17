@@ -48,7 +48,7 @@ bool	has_died(t_philo *philo)
 	last_meal_time = philo->last_meal_time;
 	die_time = philo->sim->input_data->die_time;
 
-	if (curtime - last_meal_time >= die_time)
+	if (curtime - last_meal_time > die_time)
 	{
 		// printf("start_time: %ld\ncurtime: %ld\nlast_meal_time: %ld\ndie_time: %ld\n", philo->start_time, curtime, last_meal_time, die_time);
 		pthread_mutex_lock(&(philo->sim->dead));
@@ -110,8 +110,8 @@ void	go_eat(t_philo *philo)
 	if (!check_if_someone_is_dead(philo->sim))
 	{
 		print_message(philo, "is eating");
-		ft_usleep(philo->sim->input_data->eat_time, philo);
 		philo->last_meal_time = get_time();
+		ft_usleep(philo->sim->input_data->eat_time, philo);
 		if (philo->num_finished_meals != -1)
 			philo->num_finished_meals++;
 
@@ -137,7 +137,7 @@ void	go_think(t_philo *philo)
 {
 	print_message(philo, "is thinking");
 	if (philo->sim->input_data->num_philos % 2 != 0)
-		ft_usleep(1, philo);
+		ft_usleep(10, philo);
 }
 
 void	*routine(void *arg)
@@ -148,7 +148,7 @@ void	*routine(void *arg)
 	philo = (t_philo *)arg;
 	sim = philo->sim;
 	if (philo->id % 2 == 0)
-		ft_usleep(1, philo);
+		ft_usleep(sim->input_data->eat_time / 10, philo);
 	while (1)
 	{
 		go_eat(philo);
@@ -158,7 +158,7 @@ void	*routine(void *arg)
 		if (are_philos_done_with_meals(sim) || check_if_someone_is_dead(sim))
 			break ;
 		go_think(philo);
-		if (are_philos_done_with_meals(sim) || check_if_someone_is_dead(sim))
+		if (are_philos_done_with_meals(sim))
 			break ;
 	}
 	return (NULL);
