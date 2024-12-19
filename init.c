@@ -53,15 +53,31 @@ t_philo	*init_philos(t_simulation *sim)
 		arr_philos[i].num_finished_meals = 0;
 		arr_philos[i].last_meal_time = start_time;
 		arr_philos[i].sim = sim;
-		if (i == sim->input_data->num_philos - 1)
+		if (sim->input_data->num_philos % 2 != 0)
 		{
-			arr_philos[i].first_fork_idx = 0;
-			arr_philos[i].second_fork_idx = i;
+			if (i == 0)
+			{
+				arr_philos[i].first_fork_idx = sim->input_data->num_philos - 1;
+				arr_philos[i].second_fork_idx = 0;
+			}
+			else
+			{
+				arr_philos[i].first_fork_idx = i - 1;
+				arr_philos[i].second_fork_idx = i;
+			}
 		}
 		else
 		{
-			arr_philos[i].first_fork_idx = i;
-			arr_philos[i].second_fork_idx = i + 1;
+			if (i == sim->input_data->num_philos - 1)
+			{
+				arr_philos[i].first_fork_idx = 0;
+				arr_philos[i].second_fork_idx = i;
+			}
+			else
+			{
+				arr_philos[i].first_fork_idx = i;
+				arr_philos[i].second_fork_idx = i + 1;
+			}
 		}
 	}
 	return (arr_philos);

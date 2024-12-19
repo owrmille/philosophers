@@ -136,8 +136,8 @@ void	go_sleep(t_philo *philo)
 void	go_think(t_philo *philo)
 {
 	print_message(philo, "is thinking");
-	if (philo->sim->input_data->num_philos % 2 != 0)
-		ft_usleep(10, philo);
+	// if (philo->sim->input_data->num_philos % 2 != 0)
+	// 	ft_usleep(10, philo);
 }
 
 void	*routine(void *arg)
@@ -148,7 +148,7 @@ void	*routine(void *arg)
 	philo = (t_philo *)arg;
 	sim = philo->sim;
 	if (philo->id % 2 == 0)
-		ft_usleep(sim->input_data->eat_time / 10, philo);
+		ft_usleep(sim->input_data->eat_time / 2, philo);
 	while (1)
 	{
 		go_eat(philo);
@@ -196,6 +196,8 @@ void	clean_up_data(t_philo *arr_philos, t_simulation *sim)
 		free(sim->forks);
 	if (arr_philos)
 		free(arr_philos);
+	if (sim->is_fork_occupied)
+		free(sim->is_fork_occupied);
 }
 
 int	run_simulation(t_simulation *sim, t_input *input_data)
