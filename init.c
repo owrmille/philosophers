@@ -3,6 +3,7 @@
 int	init_simulation(t_simulation *sim, t_input *input)
 {
 	int	i;
+
 	sim->start_time = get_time();
 	sim->processed_philos = 0;
 	sim->input_data = input;
@@ -14,6 +15,7 @@ int	init_simulation(t_simulation *sim, t_input *input)
 	}
 	i = -1;
 	pthread_mutex_init(&sim->write_lock, NULL);
+	pthread_mutex_init(&sim->lock, NULL);
 	while (++i < input->num_philos)
 	{
 		pthread_mutex_init(&sim->forks[i], NULL);
@@ -35,28 +37,34 @@ int	init_philos(t_simulation *sim)
 	i = -1;
 	while (++i < sim->input_data->num_philos)
 	{
-		arr_philos[i].id = i + 1;
-		arr_philos[i].sim = sim;
-		arr_philos[i].num_finished_meals = 0;
-		arr_philos[i].has_eaten = false;
-		arr_philos[i].dead = false;
-		arr_philos[i].last_meal_time = sim->start_time;
-		pthread_mutex_init(&arr_philos[i].last_meal_time_lock, NULL);
-		pthread_mutex_init(&arr_philos[i].num_finished_meals_lock, NULL);
-		pthread_mutex_init(&arr_philos[i].has_eaten_lock, NULL);
-		pthread_mutex_init(&arr_philos[i].dead_lock, NULL);
-		pthread_mutex_init(&arr_philos[i].meal_lock, NULL);
-		if (i % 2 == 0)
-		{
-			arr_philos[i].first_fork_idx = (i + 1) % sim->input_data->num_philos;
-			arr_philos[i].second_fork_idx = i;
-		}
-		else
-		{
-			arr_philos[i].first_fork_idx = i;
-			arr_philos[i].second_fork_idx = (i + 1) % sim->input_data->num_philos;
-		}
+		init_philo(&arr_philos[i], sim, i);
 	}
 	sim->philos = arr_philos;
+	return (0);
+}
+
+int init_philo(t_philo *philo, t_simulation *sim, int i)
+{
+	int right_fork_idx;
+
+	philo->id = i + 1;
+	philo->sim = sim;
+	philo->num_finished_meals = 0;
+	philo->last_meal_time = sim->start_time;
+	philo->dead = false;
+	philo->has_eaten = false;
+	pthread_mutex_init(&philo->dead_lock, NULL);
+	pthread_mutex_init(&philo->meal_lock, NULL);
+	right_fork_idx = (i + 1) % sim->input_data->num_philos;
+	if (i % 2 == 0)
+	{
+		philo->first_fork_idx = right_fork_idx;
+		philo->second_fork_idx = i;
+	}
+	else
+	{
+		philo->first_fork_idx = i;
+		philo->second_fork_idx = right_fork_idx;
+	}
 	return (0);
 }

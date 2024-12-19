@@ -17,7 +17,7 @@ typedef struct s_input
 	int	sleep_time;
 }	t_input;
 
-struct s_philo;
+struct	s_philo;
 
 typedef struct s_simulation
 {
@@ -27,6 +27,7 @@ typedef struct s_simulation
 	t_input			*input_data;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	write_lock;
+	pthread_mutex_t	lock;
 }	t_simulation;
 
 typedef struct s_philo
@@ -34,47 +35,63 @@ typedef struct s_philo
 	int				id;
 	t_simulation	*sim;
 	pthread_t		thread;
+	int				num_finished_meals;
+	size_t			last_meal_time;
 	int				first_fork_idx;
 	int				second_fork_idx;
-	int				num_finished_meals;
 	bool			has_eaten;
 	bool			dead;
-	size_t			last_meal_time;
-	pthread_mutex_t	last_meal_time_lock;
-	pthread_mutex_t num_finished_meals_lock;
-	pthread_mutex_t has_eaten_lock;  // TODO delete
 	pthread_mutex_t dead_lock;
 	pthread_mutex_t meal_lock;
 }	t_philo;
 
+/* eat.c */
+void	go_eat(t_philo *philo);
+int 	take_forks(t_philo *philo);
+bool	take_fork(t_philo *philo, int fork_idx);
+void	return_forks(t_philo *philo);
+void	return_fork(t_philo *philo, int fork_idx);
+
 /* init.c */
 int		init_simulation(t_simulation *sim, t_input *input);
 int		init_philos(t_simulation *sim);
+int		init_philo(t_philo *philo, t_simulation *sim, int i);
 
+/* input_utils.c */
 int		ft_atoi(const char	*str);
+
+/* monitor.c */
+void	monitor_philos(t_simulation *sim);
+bool	should_stop(t_simulation *sim, t_philo *philo);
+bool	has_just_eaten(t_philo *philo);
+
+/* process_input.c */
+void	save_input_data(t_input *data, int argc, char **argv);
+void	init_input_data(t_input *data);
 int		process_input(t_input *data, int argc, char **argv);
+
+/* routine.c */
+void	*routine(void *arg);
+void	handle_one_fork(t_philo *philo);
+void	go_sleep(t_philo *philo);
+void	go_think(t_philo *philo);
+
+/* run_simulation.c */
+int		run_simulation(t_simulation *sim, t_input *input_data);
+void	create_philosophers_threads(t_philo *arr_philos, int num_philos);
+void	wait_threads(t_simulation *sim);
+void	clean_up_data(t_simulation *sim);
+
+/* state.c */
+bool	has_died(t_philo *philo);
+void	set_dead(t_philo *philos, int num_philos);
+bool	is_dead(t_philo *philo);
 
 /* time_utils.c */
 size_t	get_time(void);
-void		ft_usleep(size_t ms, t_philo *philo);
+void	ft_usleep(size_t ms, t_philo *philo);
+
+/* utils.c */
 void	print_message(t_philo *philo, char *str);
-
-/* run_simulation.c */
-
-bool	is_dead(t_philo *philo);
-bool	has_died(t_philo *philo);
-void	print_message(t_philo *philo, char *msg);
-void	take_left_fork(t_philo *philo);
-void	take_right_fork(t_philo *philo);
-void	go_eat(t_philo *philo);
-void	go_sleep(t_philo *philo);
-void	go_think(t_philo *philo);
-void	*routine(void *arg);
-void	create_philosophers_threads(t_philo *arr_philos, int num_philos);
-void	wait_threads(t_simulation *sim, pthread_t *dead_monitor_thread, pthread_t *meals_monitor_thread);
-void	clean_up_data(t_simulation *sim);
-int		run_simulation(t_simulation *sim, t_input *input_data);
-
-// void	free_philos(t_philo *arr_philos);
 
 #endif
