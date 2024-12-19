@@ -41,8 +41,7 @@ typedef struct s_philo
 	int				second_fork_idx;
 	bool			has_eaten;
 	bool			dead;
-	pthread_mutex_t dead_lock;
-	pthread_mutex_t meal_lock;
+	pthread_mutex_t lock;
 }	t_philo;
 
 /* eat.c */

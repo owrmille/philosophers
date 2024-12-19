@@ -53,8 +53,18 @@ int init_philo(t_philo *philo, t_simulation *sim, int i)
 	philo->last_meal_time = sim->start_time;
 	philo->dead = false;
 	philo->has_eaten = false;
-	pthread_mutex_init(&philo->dead_lock, NULL);
-	pthread_mutex_init(&philo->meal_lock, NULL);
+	pthread_mutex_init(&philo->lock, NULL);
+	// if ((i == sim->input_data->num_philos - 1) && (sim->input_data->num_philos % 2 != 0))
+	// {
+	// 	philo->first_fork_idx = 0;
+	// 	philo->second_fork_idx = sim->input_data->num_philos - 1;
+	// }
+	// else
+	// {
+	// 	philo->first_fork_idx = i;
+	// 	philo->second_fork_idx = (i + 1) % sim->input_data->num_philos;
+	// }
+
 	right_fork_idx = (i + 1) % sim->input_data->num_philos;
 	if (i % 2 == 0)
 	{

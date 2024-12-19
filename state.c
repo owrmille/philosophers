@@ -13,18 +13,17 @@ bool	has_died(t_philo *philo)
 	}
 
 	curtime = get_time();
-	pthread_mutex_lock(&(philo->meal_lock));
+	pthread_mutex_lock(&(philo->lock));
 	last_meal_time = philo->last_meal_time;
-	pthread_mutex_unlock(&(philo->meal_lock));
-
 	die_time = philo->sim->input_data->die_time;
-
 	if (curtime - last_meal_time > die_time)
 	{
 		print_message(philo, "died");
-		set_dead(philo, 1);
+		philo->dead = true;
+		pthread_mutex_unlock(&(philo->lock));
 		return (true);
 	}
+	pthread_mutex_unlock(&(philo->lock));
 	return (false);
 }
 
@@ -35,9 +34,9 @@ void	set_dead(t_philo *philos, int num_philos)
 	i = -1;
 	while (++i < num_philos)
 	{
-		pthread_mutex_lock(&philos[i].dead_lock);
+		pthread_mutex_lock(&philos[i].lock);
 		philos[i].dead = true;
-		pthread_mutex_unlock(&philos[i].dead_lock);
+		pthread_mutex_unlock(&philos[i].lock);
 	}
 }
 
@@ -45,8 +44,8 @@ bool	is_dead(t_philo *philo)
 {
 	bool	dead;
 
-	pthread_mutex_lock(&(philo->dead_lock));
+	pthread_mutex_lock(&(philo->lock));
 	dead = philo->dead;
-	pthread_mutex_unlock(&(philo->dead_lock));
+	pthread_mutex_unlock(&(philo->lock));
 	return (dead);
 }

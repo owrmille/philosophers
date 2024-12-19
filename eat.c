@@ -6,14 +6,14 @@ void	go_eat(t_philo *philo)
 		return ;
 	if (!is_dead(philo))
 	{
-		print_message(philo, "is eating");
-		pthread_mutex_lock(&(philo->meal_lock));
+		pthread_mutex_lock(&(philo->lock));
 		philo->last_meal_time = get_time();
-		pthread_mutex_unlock(&(philo->meal_lock));
+		pthread_mutex_unlock(&(philo->lock));
+		print_message(philo, "is eating");
 		ft_usleep(philo->sim->input_data->eat_time, philo);
-		pthread_mutex_lock(&(philo->meal_lock));
+		pthread_mutex_lock(&(philo->lock));
 		philo->num_finished_meals++;
-		pthread_mutex_unlock(&(philo->meal_lock));
+		pthread_mutex_unlock(&(philo->lock));
 	}
 	return_forks(philo);
 }

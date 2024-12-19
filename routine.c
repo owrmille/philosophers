@@ -46,6 +46,6 @@ void	go_sleep(t_philo *philo)
 void	go_think(t_philo *philo)
 {
 	print_message(philo, "is thinking");
-	if (philo->sim->input_data->num_philos % 2 != 0)
-		ft_usleep(1, philo);
+	// if (philo->sim->input_data->num_philos % 2 != 0)
+	// 	ft_usleep(1, philo);
 }

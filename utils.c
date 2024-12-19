@@ -4,7 +4,7 @@ void	print_message(t_philo *philo, char *msg)
 {
 	size_t	current_time;
 
-	if (!is_dead(philo))
+	if (!philo->dead)
 	{
 		pthread_mutex_lock(&(philo->sim->write_lock));
 		current_time = get_time() - philo->sim->start_time;
