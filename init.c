@@ -43,10 +43,8 @@ int	init_philos(t_simulation *sim)
 	return (0);
 }
 
-int init_philo(t_philo *philo, t_simulation *sim, int i)
+int	init_philo(t_philo *philo, t_simulation *sim, int i)
 {
-	// int right_fork_idx;
-
 	philo->id = i + 1;
 	philo->sim = sim;
 	philo->num_finished_meals = 0;
@@ -64,17 +62,5 @@ int init_philo(t_philo *philo, t_simulation *sim, int i)
 		philo->first_fork_idx = i;
 		philo->second_fork_idx = (i + 1) % sim->input_data->num_philos;
 	}
-
-	// right_fork_idx = (i + 1) % sim->input_data->num_philos;
-	// if (i % 2 == 0)
-	// {
-	// 	philo->first_fork_idx = right_fork_idx;
-	// 	philo->second_fork_idx = i;
-	// }
-	// else
-	// {
-	// 	philo->first_fork_idx = i;
-	// 	philo->second_fork_idx = right_fork_idx;
-	// }
 	return (0);
 }

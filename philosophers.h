@@ -91,6 +91,6 @@ size_t	get_time(void);
 void	ft_usleep(size_t ms, t_philo *philo);
 
 /* utils.c */
-void	print_message(t_philo *philo, char *str);
+void	print_message(t_philo *philo, char *str, size_t time);
 
 #endif

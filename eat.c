@@ -2,17 +2,23 @@
 
 void	go_eat(t_philo *philo)
 {
+	size_t	meal_time;
+
 	if (take_forks(philo) == 1)
 		return ;
-	if (!is_dead(philo))
+	pthread_mutex_lock(&(philo->lock));
+	if (!philo->dead)
 	{
-		pthread_mutex_lock(&(philo->lock));
-		philo->last_meal_time = get_time();
+		meal_time = get_time();
+		philo->last_meal_time = meal_time;
 		pthread_mutex_unlock(&(philo->lock));
-		print_message(philo, "is eating");
+		print_message(philo, "is eating", meal_time);
 		ft_usleep(philo->sim->input_data->eat_time, philo);
 		pthread_mutex_lock(&(philo->lock));
 		philo->num_finished_meals++;
+		pthread_mutex_unlock(&(philo->lock));
+	}
+	else {
 		pthread_mutex_unlock(&(philo->lock));
 	}
 	return_forks(philo);
@@ -47,7 +53,7 @@ bool	take_fork(t_philo *philo, int fork_idx)
 		pthread_mutex_unlock(fork);
 		return (false);
 	}
-	print_message(philo, "has taken a fork");
+	print_message(philo, "has taken a fork", get_time());
 	return (true);
 }
 

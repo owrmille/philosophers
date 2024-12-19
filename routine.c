@@ -39,13 +39,13 @@ void	handle_one_fork(t_philo *philo)
 
 void	go_sleep(t_philo *philo)
 {
-	print_message(philo, "is sleeping");
+	print_message(philo, "is sleeping", get_time());
 	ft_usleep(philo->sim->input_data->sleep_time, philo);
 }
 
 void	go_think(t_philo *philo)
 {
-	print_message(philo, "is thinking");
+	print_message(philo, "is thinking", get_time());
 	// if (philo->sim->input_data->num_philos % 2 != 0)
 	// 	ft_usleep(1, philo);
 }
