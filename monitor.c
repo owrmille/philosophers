@@ -57,5 +57,6 @@ bool	has_just_eaten(t_philo *philo)
 	pthread_mutex_lock(&(philo->meal_lock));
 	has_eaten = philo->num_finished_meals >= philo->sim->input_data->num_meals;
 	pthread_mutex_unlock(&(philo->meal_lock));
+	philo->has_eaten = has_eaten;
 	return (has_eaten);
 }
