@@ -46,10 +46,10 @@ int	init_philos(t_simulation *sim)
 		pthread_mutex_init(&arr_philos[i].has_eaten_lock, NULL);
 		pthread_mutex_init(&arr_philos[i].dead_lock, NULL);
 		pthread_mutex_init(&arr_philos[i].meal_lock, NULL);
-		if ((i == sim->input_data->num_philos - 1) && (sim->input_data->num_philos % 2 != 0))
+		if (i % 2 == 0)
 		{
-			arr_philos[i].first_fork_idx = 0;
-			arr_philos[i].second_fork_idx = sim->input_data->num_philos - 1;
+			arr_philos[i].first_fork_idx = (i + 1) % sim->input_data->num_philos;
+			arr_philos[i].second_fork_idx = i;
 		}
 		else
 		{
