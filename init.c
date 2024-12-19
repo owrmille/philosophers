@@ -45,7 +45,7 @@ int	init_philos(t_simulation *sim)
 
 int init_philo(t_philo *philo, t_simulation *sim, int i)
 {
-	int right_fork_idx;
+	// int right_fork_idx;
 
 	philo->id = i + 1;
 	philo->sim = sim;
@@ -54,27 +54,27 @@ int init_philo(t_philo *philo, t_simulation *sim, int i)
 	philo->dead = false;
 	philo->has_eaten = false;
 	pthread_mutex_init(&philo->lock, NULL);
-	// if ((i == sim->input_data->num_philos - 1) && (sim->input_data->num_philos % 2 != 0))
-	// {
-	// 	philo->first_fork_idx = 0;
-	// 	philo->second_fork_idx = sim->input_data->num_philos - 1;
-	// }
-	// else
-	// {
-	// 	philo->first_fork_idx = i;
-	// 	philo->second_fork_idx = (i + 1) % sim->input_data->num_philos;
-	// }
-
-	right_fork_idx = (i + 1) % sim->input_data->num_philos;
-	if (i % 2 == 0)
+	if ((i == sim->input_data->num_philos - 1) && (sim->input_data->num_philos % 2 != 0))
 	{
-		philo->first_fork_idx = right_fork_idx;
-		philo->second_fork_idx = i;
+		philo->first_fork_idx = 0;
+		philo->second_fork_idx = sim->input_data->num_philos - 1;
 	}
 	else
 	{
 		philo->first_fork_idx = i;
-		philo->second_fork_idx = right_fork_idx;
+		philo->second_fork_idx = (i + 1) % sim->input_data->num_philos;
 	}
+
+	// right_fork_idx = (i + 1) % sim->input_data->num_philos;
+	// if (i % 2 == 0)
+	// {
+	// 	philo->first_fork_idx = right_fork_idx;
+	// 	philo->second_fork_idx = i;
+	// }
+	// else
+	// {
+	// 	philo->first_fork_idx = i;
+	// 	philo->second_fork_idx = right_fork_idx;
+	// }
 	return (0);
 }

@@ -42,6 +42,11 @@ bool	take_fork(t_philo *philo, int fork_idx)
 	if (is_dead(philo))
 		return (false);
 	pthread_mutex_lock(fork);
+	if (is_dead(philo))
+	{
+		pthread_mutex_unlock(fork);
+		return (false);
+	}
 	print_message(philo, "has taken a fork");
 	return (true);
 }
