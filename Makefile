@@ -1,9 +1,17 @@
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
 NAME = philosophers
-SRC = philosophers.c \
+SRC = main.c \
+	eat.c \
+	init.c \
+	input_utils.c \
+	monitor.c \
 	process_input.c \
-	input_utils.c
+	routine.c \
+	run_simulation.c \
+	state.c \
+	time_utils.c \
+	utils.c
 OBJS = $(SRC:.c=.o)
 
 all: $(NAME)

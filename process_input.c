@@ -8,6 +8,8 @@ void	save_input_data(t_input *data, int argc, char **argv)
 	data->sleep_time = ft_atoi(argv[4]);
 	if (argc == 6)
 		data->num_meals = ft_atoi(argv[5]);
+	else
+		data->num_meals = -1;
 }
 
 void	init_input_data(t_input *data)
@@ -30,7 +32,7 @@ int	process_input(t_input *data, int argc, char **argv)
 	save_input_data(data, argc, argv);
 	if (data->num_philos <= 0 || data->die_time <= 0
 		|| data->eat_time <= 0 || data->sleep_time <= 0
-		|| data->num_meals < 0)
+		|| (data->num_meals < 0 && data->num_meals != -1))
 	{
 		write(2,
 			"Error: data should include only numbers bigger than 0.\n", 56);
